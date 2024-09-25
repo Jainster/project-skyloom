@@ -22,7 +22,7 @@ The system follows a **modular architecture**, where subsystems—sensors, motor
    - **Design**: PWM control is implemented within a FreeRTOS task that continuously adjusts motor speeds in real-time based on sensor input.
 
 3. **Sensor Integration (IMU)**:
-   - **Role**: A 10-axis **Inertial Measurement Unit (IMU)** supplies real-time orientation, gyroscopic, and accelerometer data.
+   - **Role**: A 9-axis **Inertial Measurement Unit (IMU)** supplies real-time orientation, gyroscopic, and accelerometer data.
    - **Responsibility**: Feeds the control unit with sensor data for flight stabilization.
    - **Design**: Communicates via I2C/SPI and is managed by a FreeRTOS task that processes data and sends it to the motor control task for real-time adjustments.
 
