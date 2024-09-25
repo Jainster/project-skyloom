@@ -1,55 +1,51 @@
 # Project Skyloom: Quadcopter using Espressif SDK (ESP32)
 
-**Project Skyloom** is a quadcopter powered by an **ESP32** microcontroller using the **Espressif SDK** and **FreeRTOS** for real-time task scheduling and control. The architecture handles critical functions like sensor integration, motor control, power management, and communication within a real-time environment, enabling autonomous flight without a traditional flight controller.
+**Project Skyloom** is a quadcopter powered by an **ESP32** microcontroller, using the **Espressif SDK** and **FreeRTOS** for real-time task scheduling. The system controls motor drivers, integrates sensor data, manages power, and facilitates wireless communication to enable autonomous and remote-controlled flight.
 
 ## Architecture Overview
 
-The system follows a **modular architecture**, where subsystems—sensors, motors, communication, and safety features—operate as independent components. These components interact through **FreeRTOS tasks** and **queues**, ensuring responsive, real-time performance. This design supports scalability and robustness, allowing developers to easily extend or modify individual components without impacting overall system stability.
+The project follows a **modular architecture**, where subsystems like sensors, motors, and communication function as independent components. These components operate through **FreeRTOS tasks** and **queues**, ensuring real-time performance. This approach allows for easy expansion or modification without impacting overall stability.
 
 ### Core Modules and Interactions
 
 1. **Control Unit (ESP32)**:
-   - **Role**: Acts as the central controller, coordinating sensor data, motor control, and wireless communication.
-   - **Responsibility**: 
-     - Receives data from the IMU sensor for orientation and stability.
-     - Executes real-time control algorithms to adjust motor speeds using PWM signals.
-     - Manages power consumption, battery health, and overheating.
-   - **Design**: Runs **FreeRTOS**, where each subsystem (IMU, motor control, communication) operates as a dedicated task. Tasks interact via message queues to ensure real-time, low-latency performance.
+   - **Role**: The ESP32 serves as the central controller, managing sensor data, motor control, and communication.
+   - **Responsibilities**:
+     - Processes real-time data from the IMU sensor to maintain flight stability.
+     - Executes control algorithms to adjust motor speeds via PWM signals.
+     - Monitors battery levels and manages power consumption.
+   - **Design**: Runs **FreeRTOS** with dedicated tasks for each subsystem (IMU, motor control, communication). These tasks interact via message queues to ensure real-time, low-latency performance.
 
 2. **Motor Control System**:
-   - **Role**: Controls the quadcopter’s DC motors using **PWM (Pulse Width Modulation)**.
-   - **Responsibility**: Adjusts motor speeds based on control signals for stable flight.
-   - **Design**: PWM control is implemented within a FreeRTOS task that continuously adjusts motor speeds in real-time based on sensor input.
+   - **Role**: Controls the quadcopter’s motors via **PWM** using two **TB6612 motor drivers**.
+   - **Responsibilities**: Adjusts motor speeds based on real-time control inputs for stable flight.
+   - **Design**: A FreeRTOS task generates PWM signals for the motor drivers, continuously adjusting motor speeds in response to IMU data.
 
 3. **Sensor Integration (IMU)**:
-   - **Role**: A 9-axis **Inertial Measurement Unit (IMU)** supplies real-time orientation, gyroscopic, and accelerometer data.
-   - **Responsibility**: Feeds the control unit with sensor data for flight stabilization.
-   - **Design**: Communicates via I2C/SPI and is managed by a FreeRTOS task that processes data and sends it to the motor control task for real-time adjustments.
+   - **Role**: The **GY-91 IMU** sensor provides real-time orientation, gyroscope, and accelerometer data.
+   - **Responsibilities**: Feeds sensor data to the control unit for flight stabilization.
+   - **Design**: Communicates with the ESP32 via I2C/SPI. A FreeRTOS task handles sensor data processing and forwards it to the motor control task for real-time adjustments.
 
 4. **Battery Management**:
-   - **Role**: Monitors battery health, voltage, and current to prevent mid-flight power failure.
-   - **Responsibility**: Ensures safe battery operation by providing alerts when voltage is low and safely powers down when needed.
-   - **Design**: Managed by a FreeRTOS task that periodically checks battery levels and interacts with other components when thresholds are crossed.
+   - **Role**: Monitors battery voltage and current, ensuring safe operation.
+   - **Responsibilities**: Provides alerts for low battery levels and initiates safe shutdowns when necessary.
+   - **Design**: A FreeRTOS task periodically checks the battery's health and interacts with other components when thresholds are crossed.
 
-5. **Overheating Protection**:
-   - **Role**: Monitors the temperature of motors and the ESP32, preventing component damage.
-   - **Responsibility**: Shuts down or reduces power to components when overheating is detected.
-   - **Design**: Implemented as an independent task that monitors temperature sensors and triggers emergency sequences when necessary.
-
-6. **Wireless Communication**:
-   - **Role**: Supports remote control and telemetry via **ESP-NOW** or **Wi-Fi**.
-   - **Responsibility**: Receives flight commands from a remote controller or base station and transmits telemetry data (e.g., battery status, orientation).
-   - **Design**: A dedicated task handles wireless communication, interacting with other tasks through message queues to send or receive data.
+5. **Wireless Communication (Remote Controller)**:
+   - **Role**: The quadcopter can be remotely controlled using **ESP-NOW** or **Wi-Fi**. The remote not only sends flight commands but can also receive important telemetry data like battery status, orientation, and other critical metrics.
+   - **Responsibilities**:
+     - Sends flight control commands to the quadcopter from a remote device.
+     - Receives telemetry data for status monitoring and potential adjustments.
+   - **Design**: A FreeRTOS task manages communication, exchanging messages with other tasks to relay control commands and send back critical flight data.
 
 ## Technology Stack
 
-- **ESP32 (Espressif SDK)**: The central control unit responsible for managing real-time tasks, sensor data, motor control, and wireless communication.
-- **FreeRTOS**: Manages concurrent tasks, ensuring low-latency handling of sensor data and motor control loops.
-- **DC Motors with PWM Control**: Drives the quadcopter’s motors using PWM signals for speed adjustment and flight stability.
-- **10-Axis IMU (Inertial Measurement Unit)**: Provides real-time orientation, gyroscopic, and accelerometer data to stabilize the flight.
-- **Battery Management**: Monitors battery health, voltage, and current to avoid power failure mid-flight.
-- **Overheating Management**: Continuously monitors motor and ESP32 temperature, shutting down components when overheating thresholds are crossed.
-- **Wireless Communication**: Supports **ESP-NOW** or **Wi-Fi** for sending and receiving commands from a remote controller or base station.
+- **ESP32 (Espressif SDK)**: The main control unit responsible for managing real-time tasks, sensor data, motor control, and wireless communication.
+- **FreeRTOS**: Manages the concurrent execution of tasks such as sensor data processing, motor control, and communication.
+- **DC Motors with PWM Control**: Motors are driven by PWM signals from the **TB6612 motor drivers**, adjusting speed for flight stabilization.
+- **9-Axis GY-91 IMU**: Provides real-time orientation, gyroscope, and accelerometer data.
+- **Battery Management**: Monitors the health of the battery to avoid power failures mid-flight.
+- **Wireless Communication**: Supports **ESP-NOW** or **Wi-Fi** for remote control and telemetry data transfer between the quadcopter and the controller.
 
 ## Installation
 
